@@ -30,6 +30,11 @@ if [ -e /etc/vernemq-cfg/vernemq.conf.overrides ]; then
     cat /etc/vernemq-cfg/vernemq.conf.overrides >> /etc/vernemq/vernemq.conf
 fi
 
+if [ -e /etc/vernemq-cfg/vmq_plugin.conf ]; then
+    cp /etc/vernemq-cfg/vmq_plugin.conf /usr/lib/vernemq/lib
+    chown vernemq:vernemq /usr/lib/vernemq/lib/vmq_plugin.conf
+fi
+
 echo "########## End ##########" >> /etc/vernemq/vernemq.conf
 
 # Check configuration file

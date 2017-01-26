@@ -16,8 +16,6 @@ RUN dpkg -i /tmp/vernemq.deb
 RUN rm /tmp/vernemq.deb
 
 ADD files/vm.args /etc/vernemq/vm.args
-ADD files/vmq_plugin.conf /usr/lib/vernemq/lib/vmq_plugin.conf
-RUN chown vernemq:vernemq /usr/lib/vernemq/lib/vmq_plugin.conf
 
 ADD bin/vernemq.sh /usr/sbin/start_vernemq
 ADD bin/rand_cluster_node.escript /var/lib/vernemq/rand_cluster_node.escript
