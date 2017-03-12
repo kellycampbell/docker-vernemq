@@ -1,46 +1,37 @@
-FROM debian:jessie
+FROM ubuntu:16.04
 
-MAINTAINER Erlio GmbH info@vernemq.com
+MAINTAINER kellyc@bulogics.com
 
 RUN apt-get update && apt-get install -y \
     libssl-dev \
     logrotate \
     sudo \
+    iproute2 \
 && rm -rf /var/lib/apt/lists/*
 
-ENV VERNEMQ_VERSION 0.15.3
+ENV VERNEMQ_VERSION 1.0.0rc2
 
-ADD https://bintray.com/artifact/download/erlio/vernemq/deb/jessie/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
+# ADD https://bintray.com/artifact/download/erlio/vernemq/deb/jessie/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
+COPY packages/ubuntu/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
 
 RUN dpkg -i /tmp/vernemq.deb
 RUN rm /tmp/vernemq.deb
 
 ADD files/vm.args /etc/vernemq/vm.args
+ADD files/limits.conf /etc/security/limits.d/10-nfiles.conf
 
 ADD bin/vernemq.sh /usr/sbin/start_vernemq
 ADD bin/rand_cluster_node.escript /var/lib/vernemq/rand_cluster_node.escript
 RUN chown vernemq:vernemq /var/lib/vernemq/rand_cluster_node.escript
 
-# MQTT
-EXPOSE 1883 
-
-# MQTT/SSL
-EXPOSE 8883
-
-# MQTT WebSockets
-EXPOSE 8080
-
-# VerneMQ Message Distribution
-EXPOSE 44053
-
-# EPMD - Erlang Port Mapper Daemon
-EXPOSE 4349
-    
-# Specific Distributed Erlang Port Range 
-EXPOSE 9100 9101 9102 9103 9104 9105 9106 9107 9108 9109
-
-# Prometheus Metrics
-EXPOSE 8888
+# MQTT 1883
+# MQTT/SSL 8883
+# MQTT WebSockets 8080
+# VerneMQ Message Distribution 44053
+# EPMD - Erlang Port Mapper Daemon 4349
+# Prometheus Metrics 8888
+# Specific Distributed Erlang Port Range 9100-9109
+EXPOSE 1883 8883 8080 44053 4349 8888 9100-9109
 
 VOLUME ["/var/log/vernemq", "/var/lib/vernemq", "/etc/vernemq"]
 

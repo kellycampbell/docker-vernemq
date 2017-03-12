@@ -74,5 +74,5 @@ pid=$(ps aux | grep '[b]eam.smp' | awk '{print $2}')
 
 while true
 do
-    tail -f /var/log/vernemq/console.log & wait ${!}
+    tail -qF /var/log/vernemq/console.log /var/log/vernemq/error.log /var/log/vernemq/crash.log & wait ${!}
 done
