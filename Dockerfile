@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     iproute2 \
 && rm -rf /var/lib/apt/lists/*
 
-ENV VERNEMQ_VERSION 1.0.0rc2
+ENV VERNEMQ_VERSION 1.0.1
 
 # ADD https://bintray.com/artifact/download/erlio/vernemq/deb/jessie/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
 COPY packages/ubuntu/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
