@@ -24,7 +24,7 @@ echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.con
 echo "listener.tcp.default = 0.0.0.0:1883" >> /etc/vernemq/vernemq.conf
 echo "listener.ws.default = 0.0.0.0:8080" >> /etc/vernemq/vernemq.conf
 echo "listener.vmq.clustering = 0.0.0.0:44053" >> /etc/vernemq/vernemq.conf
-echo "listener.http.metrics = 0.0.0.0:8888" >> /etc/vernemq/vernemq.conf
+echo "listener.http.default = 0.0.0.0:8888" >> /etc/vernemq/vernemq.conf
 
 if [ -e /etc/vernemq-cfg/vernemq.conf.overrides ]; then
     cat /etc/vernemq-cfg/vernemq.conf.overrides >> /etc/vernemq/vernemq.conf

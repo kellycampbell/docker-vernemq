@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     logrotate \
     sudo \
     iproute2 \
+    net-tools \
 && rm -rf /var/lib/apt/lists/*
 
 ENV VERNEMQ_VERSION 1.0.1
