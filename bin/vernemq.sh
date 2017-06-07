@@ -21,10 +21,10 @@ env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]'
 
 echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
-echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /etc/vernemq/vernemq.conf
-echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /etc/vernemq/vernemq.conf
-echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /etc/vernemq/vernemq.conf
-echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /etc/vernemq/vernemq.conf
+echo "listener.tcp.default = 0.0.0.0:1883" >> /etc/vernemq/vernemq.conf
+echo "listener.ws.default = 0.0.0.0:8080" >> /etc/vernemq/vernemq.conf
+echo "listener.vmq.clustering = 0.0.0.0:44053" >> /etc/vernemq/vernemq.conf
+echo "listener.http.metrics = 0.0.0.0:8888" >> /etc/vernemq/vernemq.conf
 
 if [ -e /etc/vernemq-cfg/vernemq.conf.overrides ]; then
     cat /etc/vernemq-cfg/vernemq.conf.overrides >> /etc/vernemq/vernemq.conf
@@ -74,5 +74,5 @@ pid=$(ps aux | grep '[b]eam.smp' | awk '{print $2}')
 
 while true
 do
-    tail -qF /var/log/vernemq/console.log /var/log/vernemq/error.log /var/log/vernemq/crash.log & wait ${!}
+    tail -qF /var/log/vernemq/console.log /var/log/vernemq/error.log /var/log/vernemq/crash.log /var/log/vernemq/erlang.log.1 & wait ${!}
 done
