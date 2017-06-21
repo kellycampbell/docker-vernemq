@@ -13,6 +13,22 @@ if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
     echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /etc/vernemq/vm.args
 fi
 
+# Cluster discovery implementation based on https://github.com/thesandlord/kubernetes-pod-ip-finder
+if env | grep -q "KUBE_VERNEMQ_DISCOVERY_URL"; then
+    response=$(curl ${KUBE_VERNEMQ_DISCOVERY_URL})
+    IFS=','
+    nodes=($(echo "$response" | tr -d '[]"'))
+    length=$(echo ${#nodes[@]})
+    for i in "${nodes[@]}"
+    do
+      if [ "$i" != "null" ] && [ "$i" != "$IP_ADDRESS" ] && (($length > 1)); then
+        echo "Start Joining to VerneMQ@${i}."
+        echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${i}')\"" >> /etc/vernemq/vm.args
+      fi
+    done
+    IFS=''
+fi
+
 sed -i '/########## Start ##########/,/########## End ##########/d' /etc/vernemq/vernemq.conf
 
 echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
@@ -21,6 +37,8 @@ env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]'
 
 echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
+
+# override the default listeners in the conf to listen on all interfaces
 echo "listener.tcp.default = 0.0.0.0:1883" >> /etc/vernemq/vernemq.conf
 echo "listener.ws.default = 0.0.0.0:8080" >> /etc/vernemq/vernemq.conf
 echo "listener.vmq.clustering = 0.0.0.0:44053" >> /etc/vernemq/vernemq.conf
