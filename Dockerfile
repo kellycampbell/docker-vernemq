@@ -15,13 +15,11 @@ RUN apt-get update && apt-get install -y \
 ENV VERNEMQ_VERSION 1.1.0
 
 ADD https://bintray.com/artifact/download/erlio/vernemq/deb/jessie/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
-# COPY packages/jessie/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
 
 RUN dpkg -i /tmp/vernemq.deb
 RUN rm /tmp/vernemq.deb
 
 ADD files/vm.args /etc/vernemq/vm.args
-# ADD files/limits.conf /etc/security/limits.d/10-nfiles.conf
 
 ADD bin/vernemq.sh /usr/sbin/start_vernemq
 ADD bin/rand_cluster_node.escript /var/lib/vernemq/rand_cluster_node.escript
