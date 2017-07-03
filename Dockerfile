@@ -9,9 +9,10 @@ RUN apt-get update && apt-get install -y \
     iproute2 \
     net-tools \
     curl \
+    mosquitto-clients \
 && rm -rf /var/lib/apt/lists/*
 
-ENV VERNEMQ_VERSION 1.0.1
+ENV VERNEMQ_VERSION 1.1.0
 
 ADD https://bintray.com/artifact/download/erlio/vernemq/deb/jessie/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
 # COPY packages/jessie/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
