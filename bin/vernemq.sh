@@ -37,6 +37,8 @@ env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]'
 
 echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
+
+# override the default listeners in the conf to listen on IP_ADDRESS required by erlang clustering
 echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /etc/vernemq/vernemq.conf
 echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /etc/vernemq/vernemq.conf
 echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /etc/vernemq/vernemq.conf
