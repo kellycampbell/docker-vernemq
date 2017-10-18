@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 
-IP_ADDRESS=$(ip -4 addr show eth0 | grep -oP "(?<=inet).*(?=/)"| sed -e "s/^[[:space:]]*//" | tail -n 1)
+# IP_ADDRESS=$(ip -4 addr show eth0 | grep -oP "(?<=inet).*(?=/)"| sed -e "s/^[[:space:]]*//" | tail -n 1)
+ERL_NODE_NAME=${HOSTNAME}.${SERVICE_NAME}.${NAMESPACE}.svc.cluster.local
 
 # Ensure correct ownership and permissions on volumes
 chown vernemq:vernemq /var/lib/vernemq /var/log/vernemq
 chmod 755 /var/lib/vernemq /var/log/vernemq
 
 # Ensure the Erlang node name is set correctly
-sed -i.bak "s/VerneMQ@127.0.0.1/VerneMQ@${IP_ADDRESS}/" /etc/vernemq/vm.args
+sed -i.bak "s/VerneMQ@127.0.0.1/VerneMQ@${ERL_NODE_NAME}/" /etc/vernemq/vm.args
 
-if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
-    echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /etc/vernemq/vm.args
+if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_HOSTNAME"; then
+    if [ "${DOCKER_VERNEMQ_DISCOVERY_HOSTNAME}" != "${HOSTNAME}" ] ; then
+        DOCKER_VERNEMQ_DISCOVERY_NODE=${DOCKER_VERNEMQ_DISCOVERY_HOSTNAME}.${SERVICE_NAME}.${NAMESPACE}.svc.cluster.local
+        echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /etc/vernemq/vm.args
+    fi
 fi
 
 # Cluster discovery implementation based on https://github.com/thesandlord/kubernetes-pod-ip-finder
@@ -33,7 +37,7 @@ sed -i '/########## Start ##########/,/########## End ##########/d' /etc/vernemq
 
 echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
 
-env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]' '[:lower:]' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
+# env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]' '[:lower:]' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
 
 echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
@@ -61,6 +65,15 @@ su - vernemq -c "/usr/sbin/vernemq config generate 2>&1 > /dev/null" | tee /tmp/
 if [ $? -ne 1 ]; then
     echo "configuration error, exit"
     echo "$(cat /tmp/config.out)"
+    echo 
+    echo "/etc/vernemq/vm.args"
+    echo "$(cat /etc/vernemq/vm.args)"
+    echo 
+    echo "/etc/vernemq/vernemq.conf"
+    echo "$(cat /etc/vernemq/vernemq.conf)"
+    echo
+    echo "ENV vars"
+    echo "$(env)"
     exit $?
 fi
 
@@ -75,7 +88,7 @@ siguser1_handler() {
 sigterm_handler() {
     if [ $pid -ne 0 ]; then
         # this will stop the VerneMQ process
-        vmq-admin cluster leave node=VerneMQ@$IP_ADDRESS -k > /dev/null
+        vmq-admin cluster leave node=VerneMQ@${ERL_NODE_NAME} -k > /dev/null
         wait "$pid"
     fi
     exit 143; # 128 + 15 -- SIGTERM
