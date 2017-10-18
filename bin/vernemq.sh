@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# IP_ADDRESS=$(ip -4 addr show eth0 | grep -oP "(?<=inet).*(?=/)"| sed -e "s/^[[:space:]]*//" | tail -n 1)
 ERL_NODE_NAME=${HOSTNAME}.${SERVICE_NAME}.${NAMESPACE}.svc.cluster.local
 
 # Ensure correct ownership and permissions on volumes
@@ -25,7 +24,7 @@ if env | grep -q "KUBE_VERNEMQ_DISCOVERY_URL"; then
     length=$(echo ${#nodes[@]})
     for i in "${nodes[@]}"
     do
-      if [ "$i" != "null" ] && [ "$i" != "$IP_ADDRESS" ] && (($length > 1)); then
+      if [ "$i" != "null" ] && [ "$i" != "$ERL_NODE_NAME" ] && (($length > 1)); then
         echo "Start Joining to VerneMQ@${i}."
         echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${i}')\"" >> /etc/vernemq/vm.args
       fi
@@ -41,6 +40,8 @@ echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
 
 echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
+
+IP_ADDRESS=$(ip -4 addr show eth0 | grep -oP "(?<=inet).*(?=/)"| sed -e "s/^[[:space:]]*//" | tail -n 1)
 
 # override the default listeners in the conf to listen on IP_ADDRESS required by erlang clustering
 echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /etc/vernemq/vernemq.conf
