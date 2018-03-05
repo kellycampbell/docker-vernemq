@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
     mosquitto-clients \
 && rm -rf /var/lib/apt/lists/*
 
-ENV VERNEMQ_VERSION 1.3.0
+# 1.3.0-47d32386 = Nightly version from 20180305
+ENV VERNEMQ_VERSION 1.3.0-47d32386
 
 ADD https://bintray.com/artifact/download/erlio/vernemq/deb/jessie/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
 
