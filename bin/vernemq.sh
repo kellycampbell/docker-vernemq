@@ -88,9 +88,11 @@ siguser1_handler() {
 # SIGTERM-handler
 sigterm_handler() {
     if [ "$pid" -ne 0 ]; then
-        # this will stop the VerneMQ process
-        # vmq-admin cluster leave node=VerneMQ@${ERL_NODE_NAME} -k > /dev/null
-        wait "$pid"
+        kill -TERM "$pid"
+        # Wait until the process has completed.
+        while kill -0 "$pid"; do
+            sleep 0.5
+        done
     fi
     exit 143; # 128 + 15 -- SIGTERM
 }
