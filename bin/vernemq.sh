@@ -88,12 +88,14 @@ siguser1_handler() {
 # SIGTERM-handler
 sigterm_handler() {
     if [ "$pid" -ne 0 ]; then
-        kill -TERM "$pid"
+        echo "Stopping VerneMQ..."
+        /usr/sbin/vernemq stop
         # Wait until the process has completed.
         while kill -0 "$pid"; do
             sleep 0.5
         done
     fi
+    echo "SIGTERM Exiting normally..."
     exit 143; # 128 + 15 -- SIGTERM
 }
 
