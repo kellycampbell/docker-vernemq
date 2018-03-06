@@ -102,7 +102,7 @@ trap 'kill ${!}; siguser1_handler' SIGUSR1
 trap 'kill ${!}; sigterm_handler' SIGTERM
 
 /usr/sbin/vernemq start
-pid=$(ps aux | grep '[b]eam.smp' | awk '{print $2}')
+pid=$(ps aux | grep 'run_erl' | awk '{print $2}')
 
 while true
 do
